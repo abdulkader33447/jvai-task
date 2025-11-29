@@ -1,49 +1,43 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import img from "../assets/Group 2.png";
 import { useState } from "react";
 import useAxios from "../hooks/useAxios";
 
 const Register = () => {
-  // const handleRegister = (e) => {
-  //   e.preventDefault();
-  //   const name = e.target.fullName.value;
-  //   const phone = e.target.phone.value;
-  //   const email = e.target.email.value;
-  //   const address = e.target.address.value;
-  //   const password = e.target.password.value;
-
-  //   console.log(name, phone, email, address, password, "from register");
-  // };
   const axios = useAxios();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const navigate = useNavigate();
+
   const handleRegister = async (e) => {
     e.preventDefault();
-    const fullName = e.target.full_name.value;
-    const phone = e.target.phone_number.value;
-    const email = e.target.email.value;
-    const address = e.target.address.value;
-    const password = e.target.password.value;
 
-    console.log(fullName,phone,email,address,password,"from register")
+    const registerData = {
+      full_name: e.target.full_name.value,
+      phone_number: e.target.phone_number.value,
+      email: e.target.email.value,
+      address: e.target.address.value,
+      password: e.target.password.value,
+    };
+
+    console.log(registerData, "from register");
 
     setLoading(true);
 
     try {
-      const response = await axios.post("register/", {
-        fullName,
-        phone,
-        email,
-        address,
-        password,
-      });
+      const response = await axios.post("register/", registerData);
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         setData(response.data);
         setMessage("Registration successful!");
+
+        setError(null);
+        setMessage("");
+
+        navigate("/login")
       } else {
         setError(
           response.data.error || "Registration failed. Please try again."
@@ -59,17 +53,17 @@ const Register = () => {
     }
   };
 
-  if (loading) {
-    return <p>Loading....</p>;
-  }
+  // if (loading) {
+  //   return <p>Loading....</p>;
+  // }
 
-  if (error) {
-    return <p>user not found.,{error}</p>;
-  }
+  // if (error) {
+  //   return <p>user not found,{error}</p>;
+  // }
   console.log("from register", data);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-linear-to-r from-green-100 to-green-300">
+    <div className="flex items-center justify-center min-h-screen bg-linear-to-r from-green-50 to-green-100">
       <div className="w-full max-w-4xl flex justify-between bg-white shadow-lg rounded-lg p-8">
         {/* Form Section */}
         <div className="w-1/2">
@@ -77,6 +71,8 @@ const Register = () => {
             Create Your Account
           </h1>
           <form className="space-y-4" onSubmit={handleRegister}>
+            {loading && <p className="text-blue-500">Processing...</p>}
+
             <input
               type="text"
               name="full_name"
@@ -119,9 +115,9 @@ const Register = () => {
               </label>
             </div> */}
             <button
+              disabled={loading}
               type="submit"
-              className="btn bg-green-600 text-white w-full py-3 rounded-md"
-            >
+              className="btn bg-green-600 text-white w-full py-3 rounded-md">
               Create Account
             </button>
             {message && (
