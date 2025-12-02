@@ -37,7 +37,7 @@ const Register = () => {
         setError(null);
         setMessage("");
 
-        navigate("/login")
+        navigate("/login");
       } else {
         setError(
           response.data.error || "Registration failed. Please try again."
