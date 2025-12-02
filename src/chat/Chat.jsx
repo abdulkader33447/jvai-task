@@ -1,27 +1,38 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router";
+import { useState, useEffect, useRef } from "react";
+import { useLocation, useNavigate } from "react-router";
 import useAxios from "../hooks/useAxios";
 
 const Chat = () => {
   const axios = useAxios();
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Session data coming from Login as state
-  const [session, setSession] = useState(location.state?.chatSessions?.[0] || null);
+  const [session, setSession] = useState(
+    location.state?.chatSessions?.[0] || null
+  );
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const chatEndRef = useRef(null);
 
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   console.log("Chat session from state:", session);
 
   // Auto scroll
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // const scrollToBottom = () => {
+  //   chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   // Send message
   const sendMessage = async () => {
@@ -40,7 +51,8 @@ const Chat = () => {
       });
 
       // AI messages from backend
-      const aiMessages = res.data.messages?.filter((m) => m.sender === "AI") || [];
+      const aiMessages =
+        res.data.messages?.filter((m) => m.sender === "AI") || [];
 
       // Merge user + AI messages
       setMessages([...updatedMessages, ...aiMessages]);
@@ -54,7 +66,9 @@ const Chat = () => {
       <div className="min-h-screen w-9/12 mx-auto p-6 flex flex-col justify-between">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-semibold text-green-700">Introducing Monica</h1>
+          <h1 className="text-2xl font-semibold text-green-700">
+            Introducing Monica
+          </h1>
           <p className="text-sm text-green-800 mt-1">
             Ask me about lifestyle, wellbeing, or legal support...
           </p>
@@ -69,9 +83,10 @@ const Chat = () => {
                 msg.sender === "User"
                   ? "ml-auto bg-green-200 text-green-900"
                   : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {msg.sender === "AI" && <p className="font-semibold text-gray-800 mb-1">ConvergeAI</p>}
+              }`}>
+              {msg.sender === "AI" && (
+                <p className="font-semibold text-gray-800 mb-1">ConvergeAI</p>
+              )}
               <p className="text-sm">{msg.content}</p>
             </div>
           ))}
@@ -90,8 +105,7 @@ const Chat = () => {
           />
           <button
             onClick={sendMessage}
-            className="ml-4 bg-green-400 hover:bg-green-500 text-white rounded-full px-3.5 py-2 shadow"
-          >
+            className="ml-4 bg-green-400 hover:bg-green-500 text-white rounded-full px-3.5 py-2 shadow">
             ➤
           </button>
         </div>
